@@ -11,8 +11,6 @@ class StorageSql:
         self.user = user
         self.passwd = passwd
         self.database = database
-        self.db = None
-        # self.cur = None
         self.connect_mysql()
         self.storage()
         self.close()
@@ -25,9 +23,8 @@ class StorageSql:
                                       passwd=self.passwd,
                                       database=self.database)
             self.cur = self.db.cursor()
-            # self.cur.
         except Exception as e:
-            print(e,"connect")
+            print(e, "connect")
 
     def close(self):
         self.db.close()
@@ -37,17 +34,21 @@ class StorageSql:
         fd = open(self.file, "r")
         data = fd.readline()
         while data:
-            data1 = re.findall("^\w*",data)
-            data2 = re.sub("(%s +)|\n","",data)
-            print(data1,data2)
+            data1 = re.findall("^\w*", data)
+            data2 = re.sub("(%s +)|\n" % (data1[0]), "", data)
+            # print('========')
+            # print(data1)
+            # print(data2)
+            # print('========')
             sql = "insert into dict (key1,value ) values (%s,%s) "
-            print(data)
+            # print(data)
             try:
                 self.cur.execute(sql, [data1[0], data2])
             except Exception as e:
-
-                print(e,)
+                self.db.rollback()
+                print(e, )
                 return False
+            self.db.commit()
             data = fd.readline()
         print("finished")
         return True
